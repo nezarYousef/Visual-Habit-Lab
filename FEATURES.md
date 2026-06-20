@@ -2,8 +2,12 @@
 
 - Onboarding gate with persisted completion state
 - Garden overview with visual habit items
-- Habit creation form with category, frequency, visual type, and optional reminder time
-- Habit details screen with streak, status, weekly timeline, progress ring, and complete action
-- Statistics screen with active habits, longest streak, average weekly completion, and strongest habit
-- Demo screen for loading sample habits
-- Theme provider prepared for light and dark palettes
+- Animated garden items with visible health status
+- Habit creation form with validation, duplicate-name prevention, custom category, frequency, visual type, and optional reminder time
+- Habit details screen with streak, status, last completion, weekly timeline, progress ring, and complete action
+- Daily habits count once per day
+- Weekly habits count once per 7-day period
+- Statistics screen with active habits, current completions, longest streak, average completion, health breakdown, habit mix, strongest habit, and weakest habit
+- Demo screen for loading sample habits and clearing local data with confirmation
+- Theme provider with persisted light and dark palettes
+- Native reminder scheduling for habits with valid reminder times
