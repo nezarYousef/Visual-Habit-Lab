@@ -9,6 +9,7 @@ import {
 } from "../features/habits/habit.storage";
 import { Habit, HabitDraft } from "../features/habits/habit.types";
 import { syncHabitCompletions } from "../features/habits/habitDb";
+import { parseReminderTime, scheduleHabitReminder } from "../utils/notifications";
 
 type HabitContextValue = {
   habits: Habit[];
@@ -90,6 +91,10 @@ export function HabitProvider({ children }: PropsWithChildren) {
 
       const habit = createHabitFromDraft(draft);
       await replaceHabits([...habitsRef.current, habit]);
+      const reminder = parseReminderTime(habit.reminderTime);
+      if (reminder) {
+        scheduleHabitReminder(habit.name, reminder.hour, reminder.minute).catch(() => undefined);
+      }
       return habit;
     },
     [replaceHabits]

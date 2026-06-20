@@ -27,6 +27,13 @@ export type HabitStats = {
   activeHabits: number;
   longestStreak: number;
   averageWeeklyCompletion: number;
+  completedThisPeriod: number;
+  healthyHabits: number;
+  atRiskHabits: number;
+  fadingHabits: number;
+  dailyHabits: number;
+  weeklyHabits: number;
+  categoryBreakdown: Array<{ category: string; count: number }>;
   bestHabit?: Habit;
   weakestHabit?: Habit;
 };

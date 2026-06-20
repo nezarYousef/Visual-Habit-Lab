@@ -27,3 +27,15 @@ export async function scheduleHabitReminder(title: string, hour: number, minute:
     } as Notifications.NotificationTriggerInput
   });
 }
+
+export function parseReminderTime(value?: string): { hour: number; minute: number } | undefined {
+  if (!value) return undefined;
+
+  const match = value.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  if (!match) return undefined;
+
+  return {
+    hour: Number(match[1]),
+    minute: Number(match[2])
+  };
+}

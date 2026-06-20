@@ -177,18 +177,33 @@ export function getHabitStats(habits: Habit[]): HabitStats {
   const scored = habits.map((habit) => ({
     habit,
     streak: calculateHabitStreak(habit),
-    weekly: getWeeklyCompletion(habit.completions, habit.frequency)
+    weekly: getWeeklyCompletion(habit.completions, habit.frequency),
+    status: getHabitStatus(getLastCompletion(habit), habit.frequency),
+    complete: isCompletedForPeriod(habit)
   }));
 
   const longest = scored.reduce((max, item) => Math.max(max, item.streak), 0);
   const averageWeeklyCompletion = scored.length
     ? Math.round(scored.reduce((sum, item) => sum + item.weekly, 0) / scored.length)
     : 0;
+  const categoryCounts = habits.reduce<Record<string, number>>((acc, habit) => {
+    acc[habit.category] = (acc[habit.category] ?? 0) + 1;
+    return acc;
+  }, {});
 
   return {
     activeHabits: habits.length,
     longestStreak: longest,
     averageWeeklyCompletion,
+    completedThisPeriod: scored.filter((item) => item.complete).length,
+    healthyHabits: scored.filter((item) => item.status === "healthy").length,
+    atRiskHabits: scored.filter((item) => item.status === "at_risk").length,
+    fadingHabits: scored.filter((item) => item.status === "fading").length,
+    dailyHabits: habits.filter((habit) => habit.frequency === "daily").length,
+    weeklyHabits: habits.filter((habit) => habit.frequency === "weekly").length,
+    categoryBreakdown: Object.entries(categoryCounts)
+      .map(([category, count]) => ({ category, count }))
+      .sort((a, b) => b.count - a.count || a.category.localeCompare(b.category)),
     bestHabit: [...scored].sort((a, b) => b.weekly - a.weekly)[0]?.habit,
     weakestHabit: [...scored].sort((a, b) => a.weekly - b.weekly)[0]?.habit
   };

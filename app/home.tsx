@@ -39,6 +39,7 @@ export default function HomeScreen() {
       <View style={styles.actions}>
         <AppButton label="New habit" icon="plus" onPress={() => router.push("/create-habit")} style={styles.actionButton} />
         <AppButton label="Stats" icon="chart-bar" variant="secondary" onPress={() => router.push("/stats")} style={styles.actionButton} />
+        <AppButton label="Demo" icon="flask-outline" variant="secondary" onPress={() => router.push("/demo")} style={styles.actionButton} />
       </View>
 
       {habits.length === 0 ? (
@@ -97,11 +98,13 @@ const styles = StyleSheet.create({
   },
   actions: {
     flexDirection: "row",
+    flexWrap: "wrap",
     gap: 10,
     marginBottom: 18
   },
   actionButton: {
-    flex: 1
+    flexGrow: 1,
+    minWidth: 105
   },
   quickPanel: {
     borderWidth: 1,
