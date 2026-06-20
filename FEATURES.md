@@ -2,7 +2,8 @@
 
 - Onboarding gate with persisted completion state
 - Garden overview with visual habit items
-- Animated garden items with visible health status
+- Animated SVG garden items with visible health status and level-based growth
+- Grouped visual worlds: trees grow in a garden, books live on library shelves, fountains flow in a court, and towers rise in a skyline
 - Habit creation form with validation, duplicate-name prevention, custom category, frequency, visual type, and optional reminder time
 - Habit details screen with streak, status, last completion, weekly timeline, progress ring, and complete action
 - Daily habits count once per day

@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { FONTS } from "../constants/typography";
 import { VISUAL_TYPES, VisualType } from "../constants/visuals";
 import { useTheme } from "../context/ThemeContext";
+import { HabitVisual } from "./HabitVisual";
 
 type VisualSelectorProps = {
   value: VisualType;
@@ -31,7 +32,7 @@ export function VisualSelector({ value, onChange }: VisualSelectorProps) {
               }
             ]}
           >
-            <MaterialCommunityIcons name={visual.icon} size={26} color={visual.colors[1]} />
+            <HabitVisual type={visualType} level={selected ? 3 : 2} status="healthy" size={54} animated={selected} selected={selected} />
             <View style={styles.labelRow}>
               <Text style={[styles.label, { color: theme.text }]}>{visual.label}</Text>
               {selected ? <MaterialCommunityIcons name="check-circle" size={16} color={theme.primary} /> : null}

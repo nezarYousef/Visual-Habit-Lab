@@ -11,7 +11,8 @@ Visual Habit Lab is a gamified habit tracker built with Expo and React Native. E
 - Daily and weekly habit logic
 - Streak, level, status, and weekly completion tracking
 - Garden health states: healthy, at risk, and fading
-- Animated garden items
+- Animated SVG garden items that grow by habit level
+- World scenes for each visual type: garden, library, fountain court, and skyline
 - Statistics dashboard with weekly chart, health breakdown, and category mix
 - Sample garden loader
 - Reminder scheduling on supported native platforms

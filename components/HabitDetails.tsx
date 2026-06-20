@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
-import { HABIT_LEVELS, VISUAL_TYPES } from "../constants/visuals";
+import { HABIT_LEVELS } from "../constants/visuals";
 import { FONTS } from "../constants/typography";
 import { useTheme } from "../context/ThemeContext";
 import {
@@ -16,6 +16,7 @@ import { AppButton } from "./AppButton";
 import { ProgressRing } from "./ProgressRing";
 import { WeeklyTimeline } from "./WeeklyTimeline";
 import { parseDateKey } from "../utils/date";
+import { HabitVisual } from "./HabitVisual";
 
 type HabitDetailsProps = {
   habit: Habit;
@@ -25,7 +26,6 @@ type HabitDetailsProps = {
 
 export function HabitDetails({ habit, onComplete, onDelete }: HabitDetailsProps) {
   const { theme } = useTheme();
-  const visual = VISUAL_TYPES[habit.visualType];
   const streak = calculateHabitStreak(habit);
   const level = getHabitLevel(streak);
   const weekly = getWeeklyCompletion(habit.completions, habit.frequency);
@@ -47,9 +47,7 @@ export function HabitDetails({ habit, onComplete, onDelete }: HabitDetailsProps)
   return (
     <View style={styles.container}>
       <View style={[styles.hero, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-        <View style={[styles.visual, { backgroundColor: visual.colors[0] }]}>
-          <MaterialCommunityIcons name={visual.icon} size={44} color={visual.colors[1]} />
-        </View>
+        <HabitVisual type={habit.visualType} level={level} status={status} size={96} selected={completedForPeriod} />
         <View style={styles.heroText}>
           <Text style={[styles.title, { color: theme.text }]}>{habit.name}</Text>
           <Text style={[styles.meta, { color: theme.textMuted }]}>
@@ -111,13 +109,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 14,
     alignItems: "center"
-  },
-  visual: {
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    alignItems: "center",
-    justifyContent: "center"
   },
   heroText: {
     flex: 1

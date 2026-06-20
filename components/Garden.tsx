@@ -1,6 +1,5 @@
-import { StyleSheet, View } from "react-native";
 import { Habit } from "../features/habits/habit.types";
-import { AnimatedGardenItem } from "./AnimatedGardenItem";
+import { HabitWorlds } from "./HabitWorlds";
 
 type GardenProps = {
   habits: Habit[];
@@ -8,20 +7,5 @@ type GardenProps = {
 };
 
 export function Garden({ habits, onSelectHabit }: GardenProps) {
-  return (
-    <View style={styles.grid}>
-      {habits.map((habit, index) => (
-        <AnimatedGardenItem key={habit.id} habit={habit} index={index} onPress={() => onSelectHabit(habit.id)} />
-      ))}
-    </View>
-  );
+  return <HabitWorlds habits={habits} onSelectHabit={onSelectHabit} />;
 }
-
-const styles = StyleSheet.create({
-  grid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 12,
-    justifyContent: "space-between"
-  }
-});
