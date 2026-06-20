@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Visual Habit Lab",
+    "slug": "visual-habit-lab",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "visualhabitlab",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#EAF7EF"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-splash-screen"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
