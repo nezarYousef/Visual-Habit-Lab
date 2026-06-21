@@ -1,8 +1,8 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 import { FONTS } from "../constants/typography";
 import { useTheme } from "../context/ThemeContext";
 import { AppButton } from "./AppButton";
+import { BrandMark } from "./BrandMark";
 
 type EmptyStateProps = {
   title: string;
@@ -16,7 +16,7 @@ export function EmptyState({ title, message, actionLabel, onAction }: EmptyState
 
   return (
     <View style={[styles.container, { borderColor: theme.border, backgroundColor: theme.surface }]}>
-      <MaterialCommunityIcons name="sprout" size={42} color={theme.primary} />
+      <BrandMark icon="sprout" size={62} />
       <Text style={[styles.title, { color: theme.text }]}>{title}</Text>
       <Text style={[styles.message, { color: theme.textMuted }]}>{message}</Text>
       <AppButton label={actionLabel} icon="plus" onPress={onAction} />
