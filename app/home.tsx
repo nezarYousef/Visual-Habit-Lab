@@ -3,14 +3,14 @@ import { router } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../components/AppButton";
 import { EmptyState } from "../components/EmptyState";
-import { Garden } from "../components/Garden";
+import { HomeWorld } from "../components/world/HomeWorld";
 import { Screen } from "../components/Screen";
 import { StatCard } from "../components/StatCard";
 import { StatusBanner } from "../components/StatusBanner";
 import { FONTS } from "../constants/typography";
 import { useHabits } from "../context/HabitContext";
 import { useTheme } from "../context/ThemeContext";
-import { getHabitStats, isCompletedForPeriod, sortHabitsForGarden } from "../features/habits/habit.logic";
+import { getHabitStats, sortHabitsForGarden } from "../features/habits/habit.logic";
 
 export default function HomeScreen() {
   const { habits, markHabitDone, isSaving, error, clearError } = useHabits();
@@ -23,7 +23,7 @@ export default function HomeScreen() {
       <View style={styles.header}>
         <View>
           <Text style={[styles.kicker, { color: theme.primary }]}>Today</Text>
-          <Text style={[styles.title, { color: theme.text }]}>Your garden</Text>
+          <Text style={[styles.title, { color: theme.text }]}>Your world</Text>
         </View>
         <MaterialCommunityIcons name="theme-light-dark" size={28} color={theme.text} onPress={toggleTheme} />
       </View>
@@ -42,6 +42,12 @@ export default function HomeScreen() {
         <AppButton label="Demo" icon="flask-outline" variant="secondary" onPress={() => router.push("/demo")} style={styles.actionButton} />
       </View>
 
+      <HomeWorld
+        habits={sortedHabits}
+        onSelectHabit={(id) => router.push(`/habit/${id}`)}
+        onCompleteHabit={markHabitDone}
+      />
+
       {habits.length === 0 ? (
         <EmptyState
           title="No habits planted yet"
@@ -49,28 +55,6 @@ export default function HomeScreen() {
           actionLabel="Create habit"
           onAction={() => router.push("/create-habit")}
         />
-      ) : (
-        <Garden habits={sortedHabits} onSelectHabit={(id) => router.push(`/habit/${id}`)} />
-      )}
-
-      {habits.length > 0 ? (
-        <View style={[styles.quickPanel, { backgroundColor: theme.surface, borderColor: theme.border }]}>
-          <Text style={[styles.panelTitle, { color: theme.text }]}>Quick complete</Text>
-          {sortedHabits.slice(0, 3).map((habit) => {
-            const completed = isCompletedForPeriod(habit);
-
-            return (
-            <AppButton
-              key={habit.id}
-              label={completed ? `${habit.name} done` : habit.name}
-              icon={completed ? "check-circle" : "check-circle-outline"}
-              variant="ghost"
-              disabled={completed}
-              onPress={() => markHabitDone(habit.id)}
-            />
-            );
-          })}
-        </View>
       ) : null}
     </Screen>
   );
@@ -105,15 +89,5 @@ const styles = StyleSheet.create({
   actionButton: {
     flexGrow: 1,
     minWidth: 105
-  },
-  quickPanel: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 14,
-    gap: 10,
-    marginTop: 18
-  },
-  panelTitle: {
-    ...FONTS.h3
   }
 });
