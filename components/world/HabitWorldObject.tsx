@@ -10,10 +10,12 @@ import Animated, {
   withRepeat,
   withSequence,
   withSpring,
-  withTiming
+  withTiming,
+  type SharedValue
 } from "react-native-reanimated";
 import { FONTS } from "../../constants/typography";
 import { useTheme } from "../../context/ThemeContext";
+import { withAlpha } from "../../utils/colors";
 import { Habit, HabitLevel, HabitStatus } from "../../features/habits/habit.types";
 import { HabitWorldObjectKind, HabitWorldZone } from "../../features/habits/habitVisuals";
 import { BookVisual } from "./visuals/BookVisual";
@@ -38,6 +40,8 @@ type HabitWorldObjectProps = {
   onComplete?: () => void;
 };
 
+const SPARK_ANGLES = [-90, -30, 30, 90, 150, 210];
+
 export const HabitWorldObject = memo(function HabitWorldObject({
   habit,
   level,
@@ -60,9 +64,13 @@ export const HabitWorldObject = memo(function HabitWorldObject({
   const radiance = useSharedValue(0);
   const press = useSharedValue(1);
   const completion = useSharedValue(0);
+  const ringA = useSharedValue(0);
+  const ringB = useSharedValue(0);
+  const sparkle = useSharedValue(0);
   const dimmed = status === "fading";
   const size = getObjectSize(level, layer);
   const depthScale = 0.92 + Math.min(layer, 4) * 0.025;
+  const glowColor = completed || level === 4 ? "#FFE08A" : getGlowColor(objectKind);
 
   useEffect(() => {
     entrance.value = withDelay(index * 55, withSpring(1, { damping: 13, stiffness: 95 }));
@@ -82,11 +90,20 @@ export const HabitWorldObject = memo(function HabitWorldObject({
 
   useEffect(() => {
     if (!celebrating) return;
+
     completion.value = withSequence(
-      withTiming(1, { duration: 120, easing: Easing.out(Easing.quad) }),
-      withSpring(0, { damping: 8, stiffness: 115 })
+      withTiming(1, { duration: 110, easing: Easing.out(Easing.quad) }),
+      withSpring(0, { damping: 7, stiffness: 130 })
     );
-  }, [celebrating, completion]);
+
+    ringA.value = 0;
+    ringA.value = withTiming(1, { duration: 760, easing: Easing.out(Easing.cubic) });
+    ringB.value = 0;
+    ringB.value = withDelay(140, withTiming(1, { duration: 760, easing: Easing.out(Easing.cubic) }));
+
+    sparkle.value = 0;
+    sparkle.value = withDelay(40, withTiming(1, { duration: 620, easing: Easing.out(Easing.cubic) }));
+  }, [celebrating, completion, ringA, ringB, sparkle]);
 
   const objectStyle = useAnimatedStyle(() => ({
     opacity: interpolate(entrance.value, [0, 1], [0, dimmed ? 0.62 : 1]),
@@ -103,16 +120,29 @@ export const HabitWorldObject = memo(function HabitWorldObject({
     ]
   }));
 
-  const glowStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(completion.value, [0, 1], [level === 4 ? 0.2 : 0, 0.72]),
-    transform: [{ scale: interpolate(completion.value, [0, 1], [level === 4 ? 1.08 : 0.62, 1.5]) }]
-  }));
-
   const softGlowStyle = useAnimatedStyle(() => ({
     opacity:
-      (completed || level === 4 ? 0.34 : status === "at_risk" ? 0.12 : 0.18) +
-      interpolate(radiance.value, [0, 1], [0, level === 4 ? 0.22 : 0.04]),
-    transform: [{ scale: interpolate(radiance.value, [0, 1], [0.92, level === 4 ? 1.18 : 1.04]) }]
+      (completed || level === 4 ? 0.82 : status === "at_risk" ? 0.4 : 0.6) +
+      interpolate(radiance.value, [0, 1], [0, level === 4 ? 0.16 : 0.06]),
+    transform: [{ scale: interpolate(radiance.value, [0, 1], [0.92, level === 4 ? 1.16 : 1.04]) }]
+  }));
+
+  const ringAStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(ringA.value, [0, 0.15, 1], [0, 0.55, 0]),
+    transform: [{ scale: interpolate(ringA.value, [0, 1], [0.5, 2.1]) }]
+  }));
+
+  const ringBStyle = useAnimatedStyle(() => ({
+    opacity: interpolate(ringB.value, [0, 0.15, 1], [0, 0.4, 0]),
+    transform: [{ scale: interpolate(ringB.value, [0, 1], [0.5, 1.7]) }]
+  }));
+
+  const labelPopStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + completion.value * 0.06 }]
+  }));
+
+  const doneIconStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + completion.value * 0.35 }]
   }));
 
   return (
@@ -127,17 +157,24 @@ export const HabitWorldObject = memo(function HabitWorldObject({
         objectStyle
       ]}
     >
-      <Animated.View style={[styles.completionGlow, { backgroundColor: zone.color }, glowStyle]} />
-      <Animated.View
-        style={[
-          styles.softGlow,
-          {
-            backgroundColor: completed || level === 4 ? "#FFE08A" : getGlowColor(objectKind)
-          },
-          softGlowStyle
-        ]}
-      />
-      <View style={[styles.groundShadow, { opacity: dimmed ? 0.12 : 0.22 + layer * 0.025, transform: [{ scaleX: 0.9 + layer * 0.04 }] }]} />
+      <View style={[styles.shadowOuter, { opacity: dimmed ? 0.07 : 0.14 + layer * 0.016, transform: [{ scaleX: 1.18 + layer * 0.05 }] }]} />
+      <View style={[styles.shadowInner, { opacity: dimmed ? 0.13 : 0.24 + layer * 0.02, transform: [{ scaleX: 0.8 + layer * 0.035 }] }]} />
+
+      <Animated.View style={[styles.softGlowWrap, softGlowStyle]}>
+        <View style={[styles.glowRingOuter, { backgroundColor: glowColor }]} />
+        <View style={[styles.glowRingMid, { backgroundColor: glowColor }]} />
+        <View style={[styles.glowRingCore, { backgroundColor: glowColor }]} />
+      </Animated.View>
+
+      <Animated.View pointerEvents="none" style={[styles.burstRing, { borderColor: zone.color }, ringAStyle]} />
+      <Animated.View pointerEvents="none" style={[styles.burstRing, styles.burstRingSmall, { borderColor: "#FFE08A" }, ringBStyle]} />
+
+      <View pointerEvents="none" style={styles.sparkField}>
+        {SPARK_ANGLES.map((angle, sparkIndex) => (
+          <Spark key={angle} sparkle={sparkle} angle={angle} color={sparkIndex % 2 === 0 ? "#FFE08A" : zone.color} />
+        ))}
+      </View>
+
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={`${habit.name} details`}
@@ -152,7 +189,8 @@ export const HabitWorldObject = memo(function HabitWorldObject({
       >
         <ObjectVisual objectKind={objectKind} level={level} status={status} size={size} />
       </Pressable>
-      <View style={[styles.labelPill, { backgroundColor: theme.surface }]}>
+
+      <Animated.View style={[styles.labelPill, { backgroundColor: withAlpha(theme.surface, 0.88) }, labelPopStyle]}>
         <Text numberOfLines={1} style={[styles.habitName, { color: theme.text }]}>
           {habit.name}
         </Text>
@@ -166,17 +204,37 @@ export const HabitWorldObject = memo(function HabitWorldObject({
               styles.doneButton,
               {
                 backgroundColor: completed ? zone.color : theme.surfaceMuted,
-                opacity: completed ? 0.82 : 1
+                opacity: completed ? 0.85 : 1
               }
             ]}
           >
-            <MaterialCommunityIcons name={completed ? "check" : "check-circle-outline"} size={15} color={completed ? "#FFFFFF" : zone.color} />
+            <Animated.View style={doneIconStyle}>
+              <MaterialCommunityIcons name={completed ? "check" : "check-circle-outline"} size={15} color={completed ? "#FFFFFF" : zone.color} />
+            </Animated.View>
           </Pressable>
         ) : null}
-      </View>
+      </Animated.View>
     </Animated.View>
   );
 });
+
+function Spark({ sparkle, angle, color }: { sparkle: SharedValue<number>; angle: number; color: string }) {
+  const radians = (angle * Math.PI) / 180;
+  const dx = Math.cos(radians);
+  const dy = Math.sin(radians);
+  const distance = 44;
+
+  const style = useAnimatedStyle(() => ({
+    opacity: interpolate(sparkle.value, [0, 0.12, 1], [0, 1, 0]),
+    transform: [
+      { translateX: dx * sparkle.value * distance },
+      { translateY: dy * sparkle.value * distance },
+      { scale: interpolate(sparkle.value, [0, 1], [0.5, 1]) }
+    ]
+  }));
+
+  return <Animated.View style={[styles.spark, { backgroundColor: color }, style]} />;
+}
 
 function ObjectVisual({
   objectKind,
@@ -231,27 +289,79 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  softGlow: {
+  softGlowWrap: {
     position: "absolute",
     top: 9,
     width: 104,
     height: 104,
-    borderRadius: 52
+    alignItems: "center",
+    justifyContent: "center"
   },
-  groundShadow: {
+  glowRingOuter: {
     position: "absolute",
-    top: 78,
+    width: 104,
+    height: 104,
+    borderRadius: 52,
+    opacity: 0.2
+  },
+  glowRingMid: {
+    position: "absolute",
     width: 72,
-    height: 18,
-    borderRadius: 999,
-    backgroundColor: "#102A2B"
+    height: 72,
+    borderRadius: 36,
+    opacity: 0.3
   },
-  completionGlow: {
+  glowRingCore: {
     position: "absolute",
-    top: 11,
-    width: 92,
-    height: 92,
-    borderRadius: 46
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    opacity: 0.46
+  },
+  burstRing: {
+    position: "absolute",
+    top: 17,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    borderWidth: 2.5
+  },
+  burstRingSmall: {
+    top: 23,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
+    borderWidth: 2
+  },
+  sparkField: {
+    position: "absolute",
+    top: 61,
+    width: 1,
+    height: 1,
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  spark: {
+    position: "absolute",
+    width: 6,
+    height: 6,
+    borderRadius: 3
+  },
+  shadowOuter: {
+    position: "absolute",
+    top: 73,
+    width: 96,
+    height: 24,
+    borderRadius: 999,
+    backgroundColor: "#0A211F"
+  },
+  shadowInner: {
+    position: "absolute",
+    top: 80,
+    width: 58,
+    height: 13,
+    borderRadius: 999,
+    backgroundColor: "#0A211F"
   },
   labelPill: {
     minWidth: 92,
@@ -264,7 +374,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 5,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.28)",
+    borderColor: "rgba(255,255,255,0.3)",
     shadowColor: "#102A2B",
     shadowOpacity: 0.18,
     shadowRadius: 8,
